@@ -704,13 +704,13 @@ log_plot
 
 ```
 
-We see that the three curves intersect at `0.52` threshold. Based on this we will be predicting any entry with probability __> 0.52__ as __1__ and __< 0.52__ as __0__
+We see that the three curves intersect at `0.58` threshold. Based on this we will be predicting any entry with probability __> 0.58__ as __1__ and __< 0.58__ as __0__
 
 Printing confusion Matrix and accuracy for the logistic model
 
 ```{r log_mod_cm_acc, echo=TRUE, warning=FALSE, message=FALSE}
 
-log_mod_pred = ifelse(predict(log_mod, hd_val, type = "response") > 0.5, 1, 0)
+log_mod_pred = ifelse(predict(log_mod, hd_val, type = "response") > 0.58, 1, 0)
 print(confusion_matrix(log_mod_pred))
 log_mod_acc = round(mean(log_mod_pred == hd_val$hd_ind),3)
 print(paste("Validation Accuracy: ",log_mod_acc))
@@ -735,14 +735,14 @@ mod_out_log_ridge = sapply(prob_thresholds, Model_Diagnostics, model_object = lo
 log_ridge_plot = spec_sense_plot(mod_out_log_ridge)
 log_ridge_plot
 ```
-Based on the chart above we observe that accuracy hits a __maximum of ~78%__ around `0.54` threshold. Lets print the confusion Matrix and accuracy of the model below.
+Based on the chart above we observe that accuracy hits a __maximum of ~82%__ around `0.56` threshold. Lets print the confusion Matrix and accuracy of the model below.
 
 ```{r conf_log_mod_ridge, echo=TRUE, warning=FALSE,message=FALSE}
 
 log_ridge_pred = ifelse(predict(log_mod_ridge, 
                                           data.matrix(hd_val %>% select(-hd_ind)), 
                                           type = "response", 
-                                          s = "lambda.1se") > 0.54, 1,0)
+                                          s = "lambda.1se") > 0.56, 1,0)
 print(confusion_matrix(log_ridge_pred))
 log_ridge_acc = mean(log_ridge_pred == hd_val$hd_ind)
 print(paste("Validation Accuracy: ",round(log_ridge_acc,3)))
@@ -763,11 +763,11 @@ nb_plot = spec_sense_plot(mod_out)
 nb_plot
 ```
 
-Based on the chart above we observe that accuracy hits a __maximum of ~78%__ around `0.57` threshold. Lets print the confusion Matrix and accuracy of the model below
+Based on the chart above we observe that accuracy hits a __maximum of ~82%__ around `0.47` threshold. Lets print the confusion Matrix and accuracy of the model below
 
 ```{r conf_nb, echo=TRUE, warning=FALSE,message=FALSE}
 
-nb_pred = ifelse(predict(Naive_Bayes_Mod, hd_val)$posterior[,'1'] > 0.57,1,0)
+nb_pred = ifelse(predict(Naive_Bayes_Mod, hd_val)$posterior[,'1'] > 0.47,1,0)
 print(confusion_matrix(nb_pred))
 nb_acc = round(mean(nb_pred == hd_val$hd_ind),3)
 print(paste("Validation Accuracy: ",nb_acc))
@@ -843,11 +843,11 @@ mod_out_rf = sapply(prob_thresholds, Model_Diagnostics, model_object = rf_mod, v
 rf_plot = spec_sense_plot(mod_out_log_ridge)
 rf_plot
 ```
-The probability threshold from the above chart for the `Random Forest` model is `0.54`.
+The probability threshold from the above chart for the `Random Forest` model is `0.56`.
 
 ```{r rf_conf, echo=TRUE, message=FALSE, warning=FALSE}
 
-rf_pred = ifelse(predict(rf_mod, hd_val, type = "prob")[,'1'] > 0.54, 1,0)
+rf_pred = ifelse(predict(rf_mod, hd_val, type = "prob")[,'1'] > 0.56, 1,0)
 print(confusion_matrix(rf_pred))
 rf_acc = mean(rf_pred == hd_val$hd_ind)
 print(paste("Validation Accuracy: ",round(rf_acc,3)))
@@ -857,7 +857,7 @@ After building the individual models we will be doing an ensemble. The ensemble 
 
 * We consider a record as `0` only if it is classified in that way by all the four model
 
-Based on this technique we will calculate the accuracy and the cofusion matrix again.
+Based on this technique we will calculate the accuracy and the confusion matrix again.
 
 ```{r ensemble, echo=TRUE, warning=FALSE, message=FALSE}
 
@@ -890,7 +890,7 @@ fig <- plot_ly(
 fig
 
 ```
-* From the chart above we see that all the algorithms are giving us equal performance with the ensemble method performing slightly better than all the model
+* From the chart above we see that all the algorithms are giving us equal performance with the Logistic Model performing slightly better than all the model
 
 * All the models have a significantly better performance than the benchmark
 
@@ -903,16 +903,16 @@ Let's check the prediction on the test data set and see the accuracy of each of 
 ```{r test_pred, echo=TRUE, message=FALSE, warning=FALSE}
 
 # Making predictions on the test dataset
-log_tst_pred = ifelse(predict(log_mod, hd_tst, type = "response") > 0.5, 1,0)
+log_tst_pred = ifelse(predict(log_mod, hd_tst, type = "response") > 0.58, 1,0)
 log_tst_acc = mean(log_tst_pred == hd_tst$hd_ind)
 
-log_ridge_tst_pred = ifelse(predict(log_mod_ridge, data.matrix(hd_tst %>% select(-hd_ind)), type = "response", "lambda.1se") > 0.54, 1,0)
+log_ridge_tst_pred = ifelse(predict(log_mod_ridge, data.matrix(hd_tst %>% select(-hd_ind)), type = "response", "lambda.1se") > 0.56, 1,0)
 log_ridge_tst_acc = mean(log_ridge_tst_pred == hd_tst$hd_ind)
 
-rf_tst_pred = ifelse(predict(rf_mod, hd_tst, type = "prob")[,'1'] > 0.54, 1,0)
+rf_tst_pred = ifelse(predict(rf_mod, hd_tst, type = "prob")[,'1'] > 0.56, 1,0)
 rf_tst_acc = mean(rf_tst_pred == hd_tst$hd_ind)
 
-nb_tst_pred = ifelse(predict(Naive_Bayes_Mod, hd_tst)$posterior[,'1'] > 0.57,1,0)
+nb_tst_pred = ifelse(predict(Naive_Bayes_Mod, hd_tst)$posterior[,'1'] > 0.47,1,0)
 nb_tst_acc =  mean(nb_tst_pred == hd_tst$hd_ind)
 
 ensemble_pred_tst = cbind(log = log_tst_pred,
